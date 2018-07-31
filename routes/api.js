@@ -12,7 +12,15 @@ module.exports = function (app, db) {
 
   app.route('/api/issues/:project')
   
-    .get(function (req, res){
+    .get(function (req, res, next){
+
+      db.collection(process.env.DB_COL)
+        .find({project:req.params.project})
+        // .project({ 'comments': 0 })
+        .toArray((err, doc) => {
+          if (err) return next(err);
+          return res.json(doc);
+        });
       
 
     })
@@ -48,9 +56,6 @@ module.exports = function (app, db) {
             if (!doc.result.ok || doc.result.n!==1 || !doc.ops[0]) return next(new Error('Document insert error'));
             return res.json(doc.ops[0]);
         });
-
-      // return res.send(project);
-      
     })
     
     .put(function (req, res, next){

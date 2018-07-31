@@ -5,11 +5,15 @@
 *       -----[Keep the tests in the same order!]----
 *       (if additional are added, keep them at the very end!)
 */
-
 var chai = require('chai');
+var assert = chai.assert;
 
-suite('Unit Tests', function(){
+suite('Unit Tests', function () {
 
-//none requiered
+  //No unit tests needed for this project
+  // health-check
+  test('Mocha Health-check', function () {
+    assert.isTrue(true, 'true is true');
+  });
 
 });
