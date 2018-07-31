@@ -47,10 +47,10 @@ mongo.connect(process.env.DB, (err, client) => {
   } else {
     console.log('Successful database connection');
     //For FCC testing purposes
-    fccTestingRoutes(app);
+    fccTestingRoutes(app, db);
 
     //Routing for API 
-    apiRoutes(app);
+    apiRoutes(app, db);
 
     //404 Not Found Middleware
     app.use(function (req, res, next) {
