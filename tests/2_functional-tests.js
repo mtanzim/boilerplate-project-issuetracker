@@ -12,6 +12,7 @@ var assert = chai.assert;
 var server = require('../server');
 
 let globalId = null;
+let globalIdPartial = null;
 chai.use(chaiHttp);
 
 const allFields = {
@@ -34,6 +35,15 @@ const partialFields = {
 const missingFields = {
   issue_title: 'Title',
 };
+
+const updateSingleField = {
+  issue_title: 'New Title',
+}
+const updateMultiField = {
+  issue_title: 'New Title',
+  issue_text: 'New text',
+  created_by: 'Functional Test - Every field filled in',
+}
 
 const oneFilter = { open: 'true' };
 const multiFilter = { open: 'true', issue_title: 'Title' };
@@ -74,6 +84,20 @@ function chaiGet(fields) {
 
 }
 
+function chaiPut(id, fields, status, message) {
+  return new Promise(function (resolve, reject) {
+    chai.request(server)
+      .put(`/api/issues/${id}`)
+      .send(fields)
+      // function chaiValidation(resolve, toResolve, status = 500, isArr = false) {
+      .end(function (err, res) {
+        assert.equal(res.status, status);
+        assert.equal(res.text, message);
+        resolve('OK');
+      })
+  });
+}
+
 
 
 function chaiPost(fields, isValid=true) {
@@ -110,6 +134,7 @@ suite('Functional Tests', function() {
         chaiPost(partialFields)
           .then(res => {
             // console.log(res);
+            globalIdPartial = res;
             assert.isTrue(true, 'Filler workarund for wrapper');
             done();
           });
@@ -127,33 +152,6 @@ suite('Functional Tests', function() {
       
     });
 
-    suite('DELETE /api/issues/{project} => text', function () {
-
-      test('No _id', function (done) {
-        chai.request(server)
-          .delete('/api/issues/test')
-          .end(function (err, res) {
-            // console.log(res.status);
-            assert.equal(res.status, 500);
-            done();
-          });
-      });
-
-      test('Valid _id', function (done) {
-        chai.request(server)
-          .delete(`/api/issues/${globalId}`)
-          .end(function (err, res) {
-            // console.log(res.text);
-            // console.log(globalId);
-            assert.equal(res.status, 200);
-            assert.equal(res.text, `Deleted ${globalId}`, 'Right ID deleted!');
-            done();
-          });
-        // Deleted 5b6082fb70f6b32f10011565
-
-      });
-
-    });
     
 
 
@@ -190,22 +188,75 @@ suite('Functional Tests', function() {
 
   });
 
-/*     suite('PUT /api/issues/{project} => text', function() {
-      
-      test('No body', function(done) {
-        
-      });
-      
-      test('One field to update', function(done) {
-        
-      });
-      
-      test('Multiple fields to update', function(done) {
-        
-      });
-      
-    }); */
+  suite('PUT /api/issues/{project} => text', function() {
+    // function chaiPut(id, fields, status, message) {
+    test('No body', function(done) {
+      chaiPut(globalId, {}, 200,"successfully updated")
+        .then(res => {
+          assert.isTrue(true, 'Filler workarund for wrapper');
+          done();
+        });
+    });
+    
+    test('One field to update', function(done) {
+      chaiPut(globalId, updateSingleField, 200, "successfully updated")
+        .then(res => {
+          assert.isTrue(true, 'Filler workarund for wrapper');
+          done();
+        });
+    });
+    
+    test('Multiple fields to update', function(done) {
+      chaiPut(globalId, updateMultiField, 200, "successfully updated")
+        .then(res => {
+          assert.isTrue(true, 'Filler workarund for wrapper');
+          done();
+        });
+    });
+    
+  });
 
 
+  suite('DELETE /api/issues/{project} => text', function () {
+
+    test('No _id', function (done) {
+      chai.request(server)
+        .delete('/api/issues/test')
+        .end(function (err, res) {
+          // console.log(res.status);
+          assert.equal(res.status, 500);
+          done();
+        });
+    });
+
+    test('Valid _id', function (done) {
+      chai.request(server)
+        .delete(`/api/issues/${globalId}`)
+        .end(function (err, res) {
+          // console.log(res.text);
+          // console.log(globalId);
+          assert.equal(res.status, 200);
+          assert.equal(res.text, `Deleted ${globalId}`, 'Right ID deleted!');
+          done();
+        });
+      // Deleted 5b6082fb70f6b32f10011565
+
+    });
+
+    test('Clear remianing index', function (done) {
+      chai.request(server)
+        .delete(`/api/issues/${globalIdPartial}`)
+        .end(function (err, res) {
+          // console.log(res.text);
+          // console.log(globalId);
+          assert.equal(res.status, 200);
+          assert.equal(res.text, `Deleted ${globalIdPartial}`, 'Right ID deleted!');
+          done();
+        });
+      // Deleted 5b6082fb70f6b32f10011565
+
+    });
+
+  });
 
 });
