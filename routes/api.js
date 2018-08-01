@@ -14,8 +14,19 @@ module.exports = function (app, db) {
   
     .get(function (req, res, next){
 
+      // console.log(req.query);
+
+      // console.log({ ...req.query, ...req.params});
+      let toFind = { ...req.query, ...req.params};
+
+      if (toFind.open!==undefined) {
+        if (toFind.open.toLowerCase()==='true') toFind.open=true;
+        else toFind.open=false;
+      }
+      // console.log (toFind);
+
       db.collection(process.env.DB_COL)
-        .find({project:req.params.project})
+        .find(toFind)
         // .project({ 'comments': 0 })
         .toArray((err, doc) => {
           if (err) return next(err);
